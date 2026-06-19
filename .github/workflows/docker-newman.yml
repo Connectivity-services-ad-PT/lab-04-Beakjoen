@@ -33,9 +33,22 @@ jobs:
             -p 8000:8000 \
             --env-file .env.example \
             fit4110/iot-ingestion:lab04
+          sleep 10
+          echo "Container started, waiting for it to be ready..."
+
+      - name: Check container is running
+        run: docker ps
+
+      - name: Check container logs
+        run: docker logs fit4110-iot-lab04
 
       - name: Wait for service health
-        run: npx wait-on http://localhost:8000/health --timeout 60000
+        run: |
+          echo "Waiting for service to be ready..."
+          npx wait-on http://localhost:8000/health --timeout 60000 --interval 1000 --verbose
+
+      - name: Test health endpoint directly
+        run: curl -v http://localhost:8000/health
 
       - name: Run Newman against Docker container
         run: npm run test:local
