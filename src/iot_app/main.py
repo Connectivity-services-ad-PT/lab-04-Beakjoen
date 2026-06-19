@@ -205,6 +205,7 @@ def next_reading_id() -> str:
 
 
 @app.get("/health", response_model=HealthResponse)
+@app.head("/health")
 def health() -> HealthResponse:
     return HealthResponse(
         status="ok",
