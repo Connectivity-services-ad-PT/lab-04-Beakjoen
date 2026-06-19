@@ -106,11 +106,26 @@ Reports:
 
 ---
 
-## 5. Bug fix applied
+## 5. Bug fixes applied
 
+### Issue 1: HTTP_STATUS_CODES compatibility
 **Issue:** `status.HTTP_STATUS_CODES` does not exist in `starlette.status` (removed in newer versions).  
 **Symptom:** Auth error handler raised `AttributeError` → 500 instead of 401.  
 **Fix:** Added a local `_HTTP_STATUS_PHRASES` dict in `src/iot_app/main.py` and replaced all references.
+
+### Issue 2: Container startup timeout in CI
+**Issue:** GitHub Actions workflow failed at "Wait for service health" step with 30s timeout.  
+**Symptom:** `npx wait-on` timeout error, container not ready in time.  
+**Root causes:**
+- HEALTHCHECK had `start-period=10s` but workflow only waited 30s total
+- CMD used `sh -c` which added startup overhead
+- Health check interval was too long (30s)
+
+**Fixes applied:**
+1. Improved HEALTHCHECK timing: `interval=10s`, `start-period=5s` (down from 30s and 10s)
+2. Created `scripts/entrypoint.sh` for cleaner process management
+3. Increased CI wait-on timeout from 30s to 60s
+4. Simplified container startup sequence
 
 ---
 
